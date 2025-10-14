@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Inicio"
+        android:icon="@drawable/baseline_home_24"
+        android:id="@+id/home"/>
+    <item android:title="Nuevo"
+        android:icon="@drawable/baseline_add_24"
+        android:id="@+id/new_p"/>
+    <item android:title="Buscar"
+        android:icon="@drawable/baseline_search_24"
+        android:id="@+id/search"/>
+</menu>

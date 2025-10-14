@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MainAplicationPSM</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrasena">Contraseña</string>>
+    <string name="nombres">Nombre(s)</string>>
+    <string name="apellidos">Apellido(s)</string>>
+    <string name="correo">Correo Electronico</string>>
+    <string name="alias">Alias</string>>
+</resources>
