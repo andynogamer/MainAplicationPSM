@@ -42,20 +42,9 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
-    fun initRecyclerView(){
-        val fakePosts = listOf(
-            Post("Título 1", "Descripción 1", "asd", "asd"),
-            Post("Título 2", "Descripción 2", "asd", "asd"),
-            Post("Título 3", "Descripción 3", "asd", "asd")
-        )
-        val recyclerView = view?.findViewById<RecyclerView>(R.id.recyclerPost)
-        recyclerView?.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView?.adapter = PostAdapter(PostProvider.postList)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Toast.makeText(requireContext(), "MainFragment cargado", Toast.LENGTH_SHORT).show()
+
 
         val fakePosts = listOf(
             Post("Título 1", "Descripción 1", "asd", "asd"),

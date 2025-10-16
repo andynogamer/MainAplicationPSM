@@ -10,4 +10,7 @@
     <item android:title="Buscar"
         android:icon="@drawable/baseline_search_24"
         android:id="@+id/search"/>
+    <item android:title="Perfil"
+        android:icon="@drawable/outline_emoji_people_24"
+        android:id="@+id/profile"/>
 </menu>
