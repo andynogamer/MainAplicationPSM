@@ -1,4 +1,4 @@
-package com.example.mainaplicationpsm
+package com.example.mainaplicationpsm.model
 
 class ForumProvider {
     companion object {

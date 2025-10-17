@@ -1,4 +1,4 @@
-package com.example.mainaplicationpsm
+package com.example.mainaplicationpsm.model
 
 data class Forum(
     val name: String,

@@ -5,7 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.mainaplicationpsm.Post
+import com.example.mainaplicationpsm.model.Post
 import com.example.mainaplicationpsm.R
 
 class PostViewHolder(view: View): RecyclerView.ViewHolder(view) {

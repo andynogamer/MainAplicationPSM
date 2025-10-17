@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mainaplicationpsm.R
-import com.example.mainaplicationpsm.Post
+import com.example.mainaplicationpsm.model.Post
 
 class PostAdapter (private val postList: List<Post>) : RecyclerView.Adapter<PostViewHolder>() {
     override fun onCreateViewHolder(

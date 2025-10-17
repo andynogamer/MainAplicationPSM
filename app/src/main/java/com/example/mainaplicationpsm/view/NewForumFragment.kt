@@ -1,14 +1,11 @@
-package com.example.mainaplicationpsm
+package com.example.mainaplicationpsm.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.mainaplicationpsm.adapter.PostAdapter
+import com.example.mainaplicationpsm.R
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -17,10 +14,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [MainFragment.newInstance] factory method to
+ * Use the [NewForumFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class MainFragment : Fragment() {
+class NewForumFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -31,7 +28,6 @@ class MainFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-
     }
 
     override fun onCreateView(
@@ -39,22 +35,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_main, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-        val fakePosts = listOf(
-            Post("Título 1", "Descripción 1", "asd", "asd"),
-            Post("Título 2", "Descripción 2", "asd", "asd"),
-            Post("Título 3", "Descripción 3", "asd", "asd")
-        )
-
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerPost)
-        recyclerView?.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView?.adapter = PostAdapter(PostProvider.postList)
+        return inflater.inflate(R.layout.fragment_new_forum, container, false)
     }
 
     companion object {
@@ -64,12 +45,12 @@ class MainFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment MainFragment.
+         * @return A new instance of fragment NewForumFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            MainFragment().apply {
+            NewForumFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

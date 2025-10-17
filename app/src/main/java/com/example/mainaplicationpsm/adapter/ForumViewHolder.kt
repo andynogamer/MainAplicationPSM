@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mainaplicationpsm.Forum
+import com.example.mainaplicationpsm.model.Forum
 import com.example.mainaplicationpsm.R
 
 class ForumViewHolder(view: View) : RecyclerView.ViewHolder(view) {

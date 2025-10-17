@@ -3,7 +3,7 @@ package com.example.mainaplicationpsm.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mainaplicationpsm.Forum
+import com.example.mainaplicationpsm.model.Forum
 import com.example.mainaplicationpsm.R
 
 class ForumAdapter(private val forumList: List<Forum>) : RecyclerView.Adapter<ForumViewHolder>() {
