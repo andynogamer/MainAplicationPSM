@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mainaplicationpsm.adapter.PostAdapter
 import com.example.mainaplicationpsm.model.PostProvider
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.mainaplicationpsm.view.NewPostFragment
 
 class ForumDetailFragment : Fragment() {
 
@@ -36,7 +38,7 @@ class ForumDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Encontrar el CollapsingToolbarLayout
+
         val collapsingToolbarLayout: CollapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar)
         collapsingToolbarLayout.title = forumName // Establece el título del foro aquí
 
@@ -48,19 +50,31 @@ class ForumDetailFragment : Fragment() {
         tvDesc.text = forumDesc
         tvMemberCount.text = "1,234 Miembros"
 
-        // Ajustar la posición de la descripción y miembros para que no se superpongan
-        // Estos valores pueden necesitar pequeños ajustes dependiendo de la imagen del banner
-        tvDesc.translationY = -70f // Mueve la descripción hacia arriba
-        ivMemberIcon.translationY = -70f // Mueve el icono de miembros hacia arriba
-        tvMemberCount.translationY = -70f // Mueve el contador de miembros hacia arriba
+
+        //tvDesc.translationY = -70f // Mueve la descripción hacia arriba
+        //ivMemberIcon.translationY = -70f // Mueve el icono de miembros hacia arriba
+        //tvMemberCount.translationY = -70f // Mueve el contador de miembros hacia arriba
 
 
         recyclerPosts.layoutManager = LinearLayoutManager(requireContext())
         recyclerPosts.adapter = PostAdapter(PostProvider.postList)
 
-        // Opcional: Cargar la imagen del banner con Glide si tienes una URL para el foro
+
         // val ivForumBanner: ImageView = view.findViewById(R.id.ivForumBanner)
         // Glide.with(requireContext()).load("URL_DEL_BANNER_DEL_FORO").into(ivForumBanner)
+        val fabAddPost: FloatingActionButton = view.findViewById(R.id.fabAddPost)
+
+
+        fabAddPost.setOnClickListener {
+            // 4. Crea la instancia del nuevo fragmento
+            val newPostFragment = NewPostFragment() //
+
+            // 5. Reemplaza el fragmento actual por el de "NewPostFragment"
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, newPostFragment) //
+                .addToBackStack(null) // Para que el usuario pueda volver atrás
+                .commit()
+        }
     }
 
     companion object {
