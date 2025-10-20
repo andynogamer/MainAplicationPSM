@@ -48,11 +48,7 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        val fakePosts = listOf(
-            Post("Título 1", "Descripción 1", "asd", "asd"),
-            Post("Título 2", "Descripción 2", "asd", "asd"),
-            Post("Título 3", "Descripción 3", "asd", "asd")
-        )
+
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerPost)
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())

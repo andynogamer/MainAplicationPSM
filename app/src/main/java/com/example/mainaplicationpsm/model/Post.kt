@@ -1,3 +1,27 @@
 package com.example.mainaplicationpsm.model
 
-data class Post (val usuario: String, val foro: String, val descripcion: String, val multimedia: String)
+import java.util.Date
+
+data class Post(
+    val id: Int,
+    val title: String,
+    val contentText: String?,
+    val createdAt: Date,
+    val updatedAt: Date?,
+    val userName: String,
+    val forum: String,
+    val images: List<String>?,
+    val voteCount: Int?
+)
+
+
+
+
+
+
+
+
+
+
+
+
