@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
 
+    private lateinit var adapter: PostAdapter
     private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
@@ -35,6 +36,16 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sessionManager = SessionManager(requireContext())
+
+        val btnFavorites = view.findViewById<View>(R.id.btnGoToFavorites)
+        btnFavorites.setOnClickListener {
+            // Navegar al fragmento de favoritos
+            val fragment = FavoritesFragment.newInstance()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, fragment)
+                .addToBackStack(null) // Para poder volver con el botón "Atrás"
+                .commit()
+        }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerPost)
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
@@ -60,17 +71,55 @@ class MainFragment : Fragment() {
                     val posts = response.body()?.posts?.toMutableList() ?: mutableListOf()
 
                     // 2. Usamos el nuevo constructor del Adaptador
-                    val adapter = PostAdapter(posts, currentUserId) { post, action ->
+                    adapter = PostAdapter(posts, currentUserId) { post, action ->
                         when (action) {
-                            PostAdapter.ActionType.DELETE -> confirmDeletePost(post, token)
-                            PostAdapter.ActionType.EDIT -> showEditDialog(post, token)
-                            PostAdapter.ActionType.OPEN_DETAIL -> {
-                                val fragment = PostDetailFragment.newInstance(post.id, post.title, post.contentText, post.postImage)
-                                parentFragmentManager.beginTransaction()
-                                    .replace(R.id.fragment_container_view, fragment)
-                                    .addToBackStack(null)
-                                    .commit()
+                            // Caso 1: Borrar
+                            PostAdapter.ActionType.DELETE -> {
+                            confirmDeletePost(post, token)
+                        }
+                            PostAdapter.ActionType.TOGGLE_LIKE -> {
+                                // 1. Actualización Optimista (Visual instantánea)
+                                if (post.isLiked) {
+                                    post.voteCount--
+                                } else {
+                                    post.voteCount++
+                                }
+                                post.isLiked = !post.isLiked
+
+                                // Notificar cambio visual
+                                adapter.notifyItemChanged(posts.indexOf(post))
+
+                                // 2. Llamada a API en segundo plano
+                                togglePostLikeApi(post, token)
                             }
+
+                            // Caso 2: Editar
+                            PostAdapter.ActionType.EDIT -> {
+                            showEditDialog(post, token)
+                        }
+                            PostAdapter.ActionType.TOGGLE_FAVORITE -> {
+                                // Optimistic update: Cambiamos visualmente primero para que se sienta rápido
+                                post.isFavorite = !post.isFavorite
+                                adapter.notifyItemChanged(posts.indexOf(post)) // Refrescar solo ese item
+
+                                // Llamada a la API en segundo plano
+                                toggleFavoriteApi(post, token)
+                            }
+
+
+                            // Caso 3: Abrir Comentarios (Nuevo)
+                            PostAdapter.ActionType.OPEN_COMMENTS -> {
+                            val fragment = PostDetailFragment.newInstance(
+                                post.id,
+                                post.title,
+                                post.contentText,
+                                post.postImage
+                            )
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container_view, fragment)
+                                .addToBackStack(null)
+                                .commit()
+                        }
                         }
                     }
                     recyclerView?.adapter = adapter
@@ -79,6 +128,40 @@ class MainFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 Log.e("API", "Error de conexión: ${e.message}")
+            }
+        }
+    }
+
+    private fun toggleFavoriteApi(post: Post, token: String) {
+        lifecycleScope.launch {
+            try {
+                val body = mapOf("postId" to post.id)
+                RetrofitClient.apiService.toggleFavorite("Bearer $token", body)
+                // Si falla, podrías revertir el cambio visual aquí
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    private fun togglePostLikeApi(post: Post, token: String) {
+        // Log antes de enviar
+        Log.d("DEBUG_LIKE", "Intentando dar like al Post ID: ${post.id}")
+
+        lifecycleScope.launch {
+            try {
+                // Hacemos la llamada
+                val response = RetrofitClient.apiService.togglePostLike("Bearer $token", post.id)
+
+                // Log después de recibir respuesta
+                if (response.isSuccessful) {
+                    Log.d("DEBUG_LIKE", "✅ Servidor respondió ÉXITO (Código: ${response.code()})")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("DEBUG_LIKE", "❌ Servidor respondió ERROR: ${response.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                Log.e("DEBUG_LIKE", "❌ Error de conexión (App no llegó al servidor): ${e.message}")
+                e.printStackTrace()
             }
         }
     }

@@ -108,4 +108,32 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: CreateCommentRequest
     ): Response<GenericResponse>
+
+
+
+    // --- FAVORITOS ---
+    @POST("favorites/toggle")
+    suspend fun toggleFavorite(
+        @Header("Authorization") token: String,
+        @Body body: Map<String, Int> // { "postId": 1 }
+    ): Response<GenericResponse> // GenericResponse o una respuesta que devuelva { isFavorite: Boolean }
+
+    @GET("favorites")
+    suspend fun getFavorites(
+        @Header("Authorization") token: String
+    ): Response<PostListResponse>
+
+    // --- LIKES ---
+
+    @POST("posts/{id}/like")
+    suspend fun togglePostLike(
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int
+    ): Response<GenericResponse> // GenericResponse o Map<String, Any>
+
+    @POST("comments/{commentId}/like")
+    suspend fun toggleCommentLike(
+        @Header("Authorization") token: String,
+        @Path("commentId") commentId: Int
+    ): Response<GenericResponse>
 }

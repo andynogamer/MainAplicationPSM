@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp">
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="12dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cvCommentAvatar"
@@ -28,7 +29,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:layout_marginEnd="8dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toStartOf="@+id/ivCommentLike"
         app:layout_constraintStart_toEndOf="@+id/cvCommentAvatar"
@@ -48,18 +48,37 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="Este es un comentario de ejemplo..."
+            android:text="Comentario..."
             android:textColor="#E0E0E0"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/tvCommentDate"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Hace 2 min"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="10sp" />
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/tvCommentDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hace 2 min"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp"
+                android:layout_marginEnd="16dp"/>
+
+            <TextView
+                android:id="@+id/tvReply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Responder"
+                android:textColor="@android:color/darker_gray"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"/>
+        </LinearLayout>
     </LinearLayout>
 
     <ImageView

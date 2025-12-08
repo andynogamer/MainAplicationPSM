@@ -8,13 +8,21 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.mainaplicationpsm.R
 import com.example.mainaplicationpsm.model.Comment
 
 class CommentAdapter(
-    private val commentList: List<Comment>
+    private var commentList: List<Comment>,
+    // Callback actualizado para manejar Reply y Like
+    private val onAction: (Comment, ActionType) -> Unit
 ) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
+
+    enum class ActionType { REPLY, LIKE } // <--- Agregamos LIKE
+
+    fun updateList(newList: List<Comment>) {
+        commentList = newList
+        notifyDataSetChanged()
+    }
 
     class CommentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivAvatar: ImageView = view.findViewById(R.id.ivCommentAvatar)
@@ -23,6 +31,7 @@ class CommentAdapter(
         val tvDate: TextView = view.findViewById(R.id.tvCommentDate)
         val tvLikes: TextView = view.findViewById(R.id.tvCommentLikes)
         val ivLike: ImageView = view.findViewById(R.id.ivCommentLike)
+        val tvReply: TextView = view.findViewById(R.id.tvReply)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -33,31 +42,31 @@ class CommentAdapter(
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         val comment = commentList[position]
 
+        // ... (tu código de textos y avatar sigue igual) ...
         holder.tvUser.text = comment.username
         holder.tvContent.text = comment.content
-        holder.tvDate.text = "${comment.date} ${comment.time}" // Muestra fecha y hora
+        holder.tvDate.text = "${comment.date} ${comment.time}"
         holder.tvLikes.text = comment.likeCount.toString()
 
-        // Cargar avatar
-        if (!comment.userAvatar.isNullOrEmpty()) {
-            try {
-                val cleanBase64 = comment.userAvatar.substringAfter(",")
-                val decodedString = Base64.decode(cleanBase64, Base64.DEFAULT)
-                val decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-                holder.ivAvatar.setImageBitmap(decodedByte)
-            } catch (e: Exception) {
-                holder.ivAvatar.setImageResource(R.drawable.ic_launcher_background)
-            }
-        } else {
-            holder.ivAvatar.setImageResource(R.drawable.ic_launcher_background)
-        }
+        // --- LÓGICA DE INDENTACIÓN (Mantenla como estaba) ---
+        val params = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+        params.marginStart = if (comment.parentId != null && comment.parentId != 0) 120 else 0
+        holder.itemView.layoutParams = params
 
-        // Color del like si ya le diste like (Lógica visual)
+        // --- LÓGICA DE LIKE VISUAL ---
         if (comment.isLikedByMe) {
-            holder.ivLike.setColorFilter(holder.itemView.context.getColor(R.color.secondary_purple_all_4)) // O color rojo/activo
+            holder.ivLike.setImageResource(R.drawable.ic_heart_filled) // Corazón rojo
+            holder.ivLike.setColorFilter(holder.itemView.context.getColor(R.color.secondary_purple_all_4))
         } else {
+            holder.ivLike.setImageResource(R.drawable.ic_heart_outline) // Corazón vacío
             holder.ivLike.setColorFilter(holder.itemView.context.getColor(android.R.color.darker_gray))
         }
+
+        // --- LISTENERS ---
+        holder.tvReply.setOnClickListener { onAction(comment, ActionType.REPLY) }
+
+        // Listener para el Like
+        holder.ivLike.setOnClickListener { onAction(comment, ActionType.LIKE) }
     }
 
     override fun getItemCount(): Int = commentList.size

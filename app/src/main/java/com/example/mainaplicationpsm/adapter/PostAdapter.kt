@@ -8,15 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mainaplicationpsm.R
 import com.example.mainaplicationpsm.model.Post
 
-// Notarás que el constructor cambió: ahora recibe 'currentUserId' y 'onAction'
 class PostAdapter(
     private var postList: MutableList<Post>,
-    private val currentUserId: Int,
-    private val onAction: (Post, ActionType) -> Unit
+    private val currentUserId: Int,  // ID para saber si es TU post
+    private val onAction: (Post, ActionType) -> Unit // Callback único para todo
 ) : RecyclerView.Adapter<PostViewHolder>() {
 
-    // Esta enumeración es necesaria para que el Fragment sepa qué opción elegiste
-    enum class ActionType { EDIT, DELETE, OPEN_DETAIL }
+    // Definimos las 3 acciones posibles
+    enum class ActionType { EDIT, DELETE, OPEN_COMMENTS, TOGGLE_FAVORITE, TOGGLE_LIKE }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -29,16 +28,18 @@ class PostAdapter(
         val item = postList[position]
         holder.render(item)
 
-        holder.comments.setOnClickListener {
-            // Ojo: holder.comments es el TextView contador,
-            // asegúrate de tener referencia al ImageView (ivComment) en el ViewHolder también
-            onAction(item, ActionType.OPEN_DETAIL)
-        }
-        // --- LÓGICA DE PROPIETARIO ---
-        // Buscamos el botón de opciones (tres puntos) en el item_post.xml
+        // --- 1. LÓGICA DE COMENTARIOS (Clic en el ícono de globo) ---
+        // Al tocar el icono o el contador, abrimos el detalle
+        holder.ivComment.setOnClickListener { onAction(item, ActionType.OPEN_COMMENTS) }
+        holder.tvCommentCount.setOnClickListener { onAction(item, ActionType.OPEN_COMMENTS) }
+        holder.ivFavorite.setOnClickListener { onAction(item, ActionType.TOGGLE_FAVORITE) }
+        holder.ivLike.setOnClickListener { onAction(item, ActionType.TOGGLE_LIKE) }
+
+        // --- 2. LÓGICA DE EDICIÓN/BORRADO (Clic en opciones) ---
+        // Buscamos el botón de opciones (flecha/tres puntos)
         val btnOptions = holder.itemView.findViewById<View>(R.id.ivOptions)
 
-        // Solo mostramos el botón si el usuario logueado es el dueño del post
+        // Solo mostramos el botón si el post es tuyo
         if (item.userId == currentUserId) {
             btnOptions.visibility = View.VISIBLE
             btnOptions.setOnClickListener { view ->
@@ -51,7 +52,6 @@ class PostAdapter(
 
     private fun showPopupMenu(view: View, post: Post) {
         val popup = PopupMenu(view.context, view)
-        // Creamos el menú por código: ID, orden, ID recurso, Texto
         popup.menu.add(0, 1, 0, "Editar")
         popup.menu.add(0, 2, 0, "Eliminar")
 
@@ -65,7 +65,6 @@ class PostAdapter(
         popup.show()
     }
 
-    // Función auxiliar para borrar visualmente el post sin recargar la pantalla
     fun removePost(post: Post) {
         val index = postList.indexOfFirst { it.id == post.id }
         if (index != -1) {

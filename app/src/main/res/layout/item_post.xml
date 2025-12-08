@@ -15,40 +15,49 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <LinearLayout
+            android:id="@+id/llHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ivOptions"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvUsuario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                tools:text="Andy" />
+
+            <TextView
+                android:id="@+id/tvForo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="#B0B0B0"
+                android:textSize="14sp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="| General" />
+        </LinearLayout>
+
         <ImageView
             android:id="@+id/ivOptions"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
-            android:padding="4dp"
             android:src="@android:drawable/ic_menu_more"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white"
             android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/tvUsuario"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="theOtaku" />
-
-        <TextView
-            android:id="@+id/tvForo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp"
-            app:layout_constraintBaseline_toBaselineOf="@+id/tvUsuario"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="en AnimeGeneral" />
 
         <TextView
             android:id="@+id/tvPostTitle"
@@ -60,8 +69,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvUsuario"
-            tools:text="¿Cuál es el mejor Shonen actual?" />
+            app:layout_constraintTop_toBottomOf="@+id/llHeader"
+            tools:text="Título de la publicación" />
 
         <TextView
             android:id="@+id/tvDescripcion"
@@ -74,7 +83,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvPostTitle"
-            tools:text="He estado viendo varios animes nuevos y no me decido..." />
+            tools:text="Descripción..." />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cvImageContainer"
@@ -94,8 +103,7 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:maxHeight="300dp"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+                android:maxHeight="300dp" />
         </androidx.cardview.widget.CardView>
 
         <ImageView
@@ -118,7 +126,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/ivLike"
             app:layout_constraintStart_toEndOf="@+id/ivLike"
             app:layout_constraintTop_toTopOf="@+id/ivLike"
-            tools:text="22" />
+            tools:text="0" />
 
         <ImageView
             android:id="@+id/ivComment"
@@ -141,7 +149,17 @@
             app:layout_constraintBottom_toBottomOf="@+id/ivComment"
             app:layout_constraintStart_toEndOf="@+id/ivComment"
             app:layout_constraintTop_toTopOf="@+id/ivComment"
-            tools:text="15" />
+            tools:text="0" />
+        <ImageView
+            android:id="@+id/ivFavorite"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivLike"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/ivLike"
+            app:srcCompat="@android:drawable/ic_menu_save"
+            app:tint="@color/white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -34,6 +34,7 @@ class ForumDetailFragment : Fragment() {
     private var forumBanner: String? = null
     private var forumMembers: Int = 0 // NUEVO: Variable para miembros
 
+    private lateinit var adapter: PostAdapter
     private lateinit var sessionManager: SessionManager
 
 
@@ -119,12 +120,49 @@ class ForumDetailFragment : Fragment() {
                     val posts = response.body()?.posts?.toMutableList() ?: mutableListOf()
 
                     // Inicializamos el adaptador con los nuevos parámetros
-                    val adapter = PostAdapter(posts, currentUserId) { post, action ->
+                     adapter = PostAdapter(posts, currentUserId) { post, action ->
                         when (action) {
-                            PostAdapter.ActionType.DELETE -> confirmDeletePost(post, token)
-                            PostAdapter.ActionType.EDIT -> showEditDialog(post, token)
-                            PostAdapter.ActionType.OPEN_DETAIL -> {
-                                val fragment = PostDetailFragment.newInstance(post.id, post.title, post.contentText, post.postImage)
+                            PostAdapter.ActionType.DELETE -> {
+                                confirmDeletePost(post, token)
+                            }
+
+                            // Caso 2: Editar
+                            PostAdapter.ActionType.EDIT -> {
+                                showEditDialog(post, token)
+                            }
+                            PostAdapter.ActionType.TOGGLE_LIKE -> {
+                                // 1. Actualización Optimista (Visual instantánea)
+                                if (post.isLiked) {
+                                    post.voteCount--
+                                } else {
+                                    post.voteCount++
+                                }
+                                post.isLiked = !post.isLiked
+
+                                // Notificar cambio visual
+                                adapter.notifyItemChanged(posts.indexOf(post))
+
+                                // 2. Llamada a API en segundo plano
+                                togglePostLikeApi(post, token)
+                            }
+
+                            PostAdapter.ActionType.TOGGLE_FAVORITE -> {
+                                // Optimistic update: Cambiamos visualmente primero para que se sienta rápido
+                                post.isFavorite = !post.isFavorite
+                                adapter.notifyItemChanged(posts.indexOf(post)) // Refrescar solo ese item
+
+                                // Llamada a la API en segundo plano
+                                toggleFavoriteApi(post, token)
+                            }
+
+                            // Caso 3: Abrir Comentarios (Nuevo)
+                            PostAdapter.ActionType.OPEN_COMMENTS -> {
+                                val fragment = PostDetailFragment.newInstance(
+                                    post.id,
+                                    post.title,
+                                    post.contentText,
+                                    post.postImage
+                                )
                                 parentFragmentManager.beginTransaction()
                                     .replace(R.id.fragment_container_view, fragment)
                                     .addToBackStack(null)
@@ -154,6 +192,25 @@ class ForumDetailFragment : Fragment() {
             .show()
     }
 
+    private fun togglePostLikeApi(post: Post, token: String) {
+        lifecycleScope.launch {
+            try {
+                RetrofitClient.apiService.togglePostLike("Bearer $token", post.id)
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+    }
+
+    private fun toggleFavoriteApi(post: Post, token: String) {
+        lifecycleScope.launch {
+            try {
+                val body = mapOf("postId" to post.id)
+                RetrofitClient.apiService.toggleFavorite("Bearer $token", body)
+                // Si falla, podrías revertir el cambio visual aquí
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
     private fun performDelete(post: Post, token: String) {
         lifecycleScope.launch {
             try {

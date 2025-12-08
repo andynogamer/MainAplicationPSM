@@ -21,7 +21,7 @@ class SessionManager(context: Context) {
         return prefs.getString(USER_TOKEN, null)
     }
 
-    // --- NUEVAS FUNCIONES PARA EL ID ---
+
     fun saveUserId(id: Int) {
         val editor = prefs.edit()
         editor.putInt(USER_ID, id)
