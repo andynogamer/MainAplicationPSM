@@ -27,8 +27,15 @@ data class RegisterRequest(
 data class CreatePostRequest(
     @SerializedName("titulo") val title: String,
     @SerializedName("descripcion") val description: String,
-    @SerializedName("id_foro") val forumId: Int? = null,
-    @SerializedName("borrador") val isDraft: Boolean = false
+    @SerializedName("id_foro") val forumId: Int,
+    @SerializedName("borrador") val isDraft: Boolean = false,
+    @SerializedName("imagen") val image: String? = null // <--- NUEVO
+)
+
+data class UpdatePostRequest(
+    @SerializedName("titulo") val title: String,
+    @SerializedName("descripcion") val description: String
+    // Nota: Tu backend actual de 'updatePost' no soporta actualizar imagen todavía, solo texto.
 )
 
 data class UpdateUserRequest(
@@ -49,4 +56,11 @@ data class CreateForumRequest(
 data class CreateForumResponse(
     @SerializedName("message") val message: String,
     @SerializedName("forumId") val forumId: Int
+)
+
+
+data class CreateCommentRequest(
+    @SerializedName("id_publicaciones") val postId: Int,
+    @SerializedName("comentario") val content: String,
+    @SerializedName("id_padre") val parentId: Int? = null // Opcional para respuestas
 )

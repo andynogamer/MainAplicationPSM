@@ -37,3 +37,8 @@ data class GenericResponse(
     @SerializedName("error")
     val error: String?
 )
+
+
+data class CommentListResponse(
+    @SerializedName("comments") val comments: List<Comment>
+)

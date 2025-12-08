@@ -32,5 +32,9 @@ data class Post(
 
     // Campo para saber a qué foro pertenece (si aplica en tu query)
     @SerializedName("id_foro")
-    val forumId: Int?
+    val forumId: Int?,
+    @SerializedName("imagen") val postImage: String?
+
+
+
 )

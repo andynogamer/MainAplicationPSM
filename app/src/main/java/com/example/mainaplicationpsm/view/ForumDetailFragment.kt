@@ -19,6 +19,12 @@ import com.example.mainaplicationpsm.view.NewPostFragment
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
+import com.example.mainaplicationpsm.utils.SessionManager
+import android.widget.EditText
+import android.widget.Toast
+import com.example.mainaplicationpsm.model.Post
+import com.example.mainaplicationpsm.view.PostDetailFragment
+import com.example.mainaplicationpsm.model.UpdatePostRequest // Para que no tengas que escribir la ruta completa
 
 class ForumDetailFragment : Fragment() {
 
@@ -27,6 +33,8 @@ class ForumDetailFragment : Fragment() {
     private var forumDesc: String? = null
     private var forumBanner: String? = null
     private var forumMembers: Int = 0 // NUEVO: Variable para miembros
+
+    private lateinit var sessionManager: SessionManager
 
 
 
@@ -51,6 +59,8 @@ class ForumDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        sessionManager = SessionManager(requireContext())
 
         val collapsingToolbar = view.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar)
         val ivHeader = view.findViewById<ImageView>(R.id.ivDetailForumBanner)
@@ -93,17 +103,112 @@ class ForumDetailFragment : Fragment() {
     }
 
     private fun fetchForumPosts(recyclerView: RecyclerView) {
+        if (forumId == -1) return
+
+        val token = sessionManager.fetchAuthToken()
+        val currentUserId = sessionManager.fetchUserId() // Obtenemos TU ID
+
+        if (token == null) return
+
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.apiService.getPosts()
+                val response = RetrofitClient.apiService.getPostsByForum("Bearer $token", forumId)
+
                 if (response.isSuccessful) {
-                    val posts = response.body()?.posts ?: emptyList()
-                    recyclerView.adapter = PostAdapter(posts)
+                    // Convertimos a MutableList para poder borrar elementos después
+                    val posts = response.body()?.posts?.toMutableList() ?: mutableListOf()
+
+                    // Inicializamos el adaptador con los nuevos parámetros
+                    val adapter = PostAdapter(posts, currentUserId) { post, action ->
+                        when (action) {
+                            PostAdapter.ActionType.DELETE -> confirmDeletePost(post, token)
+                            PostAdapter.ActionType.EDIT -> showEditDialog(post, token)
+                            PostAdapter.ActionType.OPEN_DETAIL -> {
+                                val fragment = PostDetailFragment.newInstance(post.id, post.title, post.contentText, post.postImage)
+                                parentFragmentManager.beginTransaction()
+                                    .replace(R.id.fragment_container_view, fragment)
+                                    .addToBackStack(null)
+                                    .commit()
+                            }
+                        }
+                    }
+                    recyclerView.adapter = adapter
                 } else {
                     Log.e("API", "Error al cargar posts: ${response.code()}")
                 }
             } catch (e: Exception) {
                 Log.e("API", "Error de conexión: ${e.message}")
+            }
+        }
+    }
+
+    // --- LÓGICA PARA BORRAR ---
+    private fun confirmDeletePost(post: Post, token: String) {
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar publicación")
+            .setMessage("¿Estás seguro? Esta acción no se puede deshacer.")
+            .setPositiveButton("Eliminar") { _, _ ->
+                performDelete(post, token)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun performDelete(post: Post, token: String) {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.deletePost("Bearer $token", post.id)
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Publicación eliminada", Toast.LENGTH_SHORT).show()
+                    // Actualizar la lista visualmente sin recargar todo
+                    val recyclerView = view?.findViewById<RecyclerView>(R.id.recyclerForumPosts)
+                    (recyclerView?.adapter as? PostAdapter)?.removePost(post)
+                } else {
+                    Toast.makeText(context, "Error al eliminar", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // --- LÓGICA PARA EDITAR (Diálogo simple) ---
+    private fun showEditDialog(post: Post, token: String) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_post, null)
+        val etTitle = dialogView.findViewById<EditText>(R.id.etEditTitle)
+        val etDesc = dialogView.findViewById<EditText>(R.id.etEditDesc)
+
+        etTitle.setText(post.title)
+        etDesc.setText(post.contentText)
+
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Editar Publicación")
+            .setView(dialogView)
+            .setPositiveButton("Guardar") { _, _ ->
+                val newTitle = etTitle.text.toString()
+                val newDesc = etDesc.text.toString()
+                performEdit(post, newTitle, newDesc, token)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun performEdit(post: Post, newTitle: String, newDesc: String, token: String) {
+        val request = com.example.mainaplicationpsm.model.UpdatePostRequest(newTitle, newDesc)
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.updatePost("Bearer $token", post.id, request)
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Publicación actualizada", Toast.LENGTH_SHORT).show()
+                    // Aquí lo ideal es recargar la lista para ver los cambios
+                    val recyclerView = view?.findViewById<RecyclerView>(R.id.recyclerForumPosts)
+                    fetchForumPosts(recyclerView!!)
+                } else {
+                    Toast.makeText(context, "Error al actualizar", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -25,7 +25,7 @@ import java.io.ByteArrayOutputStream
 
 class NewPostFragment : Fragment() {
 
-    private var forumId: Int = -1 // ID del foro al que pertenece el post
+    private var forumId: Int = -1
 
     private lateinit var etTitle: EditText
     private lateinit var etDescription: EditText
@@ -33,9 +33,7 @@ class NewPostFragment : Fragment() {
     private lateinit var btnPublish: Button
     private lateinit var sessionManager: SessionManager
 
-    // Variable para la imagen en Base64 (Opcional en posts, pero bueno tenerla)
-    // Nota: Tu backend actual de posts no parece guardar imagen en la tabla 'publicaciones'
-    // pero lo dejaremos listo por si implementas la tabla multimedia después.
+    // Variable para guardar la imagen lista para enviar
     private var postImageBase64: String? = null
 
     // Selector de imagen
@@ -43,9 +41,15 @@ class NewPostFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             val imageUri: Uri? = result.data?.data
             if (imageUri != null) {
+                // 1. Mostrar visualmente
                 ivImagePreview.setImageURI(imageUri)
-                // ivImagePreview.scaleType = ImageView.ScaleType.CENTER_CROP
-                // Aquí podrías convertir a Base64 si tu API lo soportara en el futuro
+                ivImagePreview.scaleType = ImageView.ScaleType.CENTER_CROP
+
+                // 2. CORRECCIÓN IMPORTANTE: Convertir a Base64 y guardar en la variable
+                postImageBase64 = convertUriToBase64(imageUri)
+
+                // Log de depuración para confirmar que se convirtió
+                Log.d("DEBUG_IMG", "Imagen convertida. Longitud: ${postImageBase64?.length}")
             }
         }
     }
@@ -74,14 +78,19 @@ class NewPostFragment : Fragment() {
         btnPublish = view.findViewById(R.id.btnPublishPost)
 
         // Configurar selección de imagen
-        ivImagePreview.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            pickImageLauncher.launch(intent)
-        }
+        // Puedes tocar la imagen o el contenedor para abrir la galería
+        val cardImage = view.findViewById<View>(R.id.cardImagePreview)
+        cardImage.setOnClickListener { openGallery() }
+        ivImagePreview.setOnClickListener { openGallery() }
 
         btnPublish.setOnClickListener {
             createPost()
         }
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickImageLauncher.launch(intent)
     }
 
     private fun createPost() {
@@ -99,11 +108,15 @@ class NewPostFragment : Fragment() {
             return
         }
 
+        // Log antes de enviar para asegurar que la imagen va
+        Log.d("DEBUG_POST", "Enviando post con imagen? ${postImageBase64 != null}")
+
         val request = CreatePostRequest(
             title = title,
             description = desc,
             forumId = forumId,
-            isDraft = false
+            isDraft = false,
+            image = postImageBase64 // Aquí enviamos la variable que llenamos arriba
         )
 
         lifecycleScope.launch {
@@ -112,7 +125,6 @@ class NewPostFragment : Fragment() {
 
                 if (response.isSuccessful) {
                     Toast.makeText(context, "¡Publicación creada!", Toast.LENGTH_SHORT).show()
-                    // Volver al foro
                     parentFragmentManager.popBackStack()
                 } else {
                     val error = response.errorBody()?.string()
@@ -123,6 +135,29 @@ class NewPostFragment : Fragment() {
                 Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
             }
+        }
+    }
+
+    // --- CORRECCIÓN: Faltaba esta función auxiliar en este archivo ---
+    private fun convertUriToBase64(imageUri: Uri): String? {
+        return try {
+            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+
+            // Redimensionar para optimizar (Max 800px)
+            // Si la imagen es muy grande (ej. 4MB), el servidor podría rechazarla o tardar mucho
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 800, 800, true)
+
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            // Calidad 80% JPEG
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
+            val byteArray = byteArrayOutputStream.toByteArray()
+
+            // Prefijo obligatorio para tu backend
+            "data:image/jpeg;base64," + Base64.encodeToString(byteArray, Base64.NO_WRAP)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

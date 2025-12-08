@@ -9,6 +9,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.DELETE
 
 interface ApiService {
 
@@ -23,9 +24,12 @@ interface ApiService {
     // GET /api/posts?page=1&limit=10
     @GET("posts")
     suspend fun getPosts(
+        @Header("Authorization") token: String, // <--- AGREGAR ESTO
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10
     ): Response<PostListResponse>
+
+
 
     // POST /api/posts (Requiere Token)
     @POST("posts")
@@ -34,6 +38,18 @@ interface ApiService {
         @Body request: CreatePostRequest
     ): Response<GenericResponse> // Asegúrate de tener GenericResponse en Responses.kt, o usa PostListResponse si devuelve el post
 
+    @PUT("posts/{id}")
+    suspend fun updatePost(
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int,
+        @Body request: UpdatePostRequest
+    ): Response<GenericResponse>
+
+    @DELETE("posts/{id}")
+    suspend fun deletePost(
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int
+    ): Response<GenericResponse>
     // --- FOROS ---
     @GET("forums")
     suspend fun getForums(): Response<ForumListResponse>
@@ -56,6 +72,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ):Response<ForumListResponse>
 
+    @GET("posts/forum/{forumId}")
+    suspend fun getPostsByForum(
+        @Header("Authorization") token: String, // <--- ¡Faltaba esto!
+        @Path("forumId") forumId: Int
+    ): Response<PostListResponse>
+
     // --- USUARIOS ---
 
     // Obtener detalles del usuario (Para llenar los campos al entrar al perfil)
@@ -71,5 +93,19 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("id") userId: Int,
         @Body request: UpdateUserRequest
+    ): Response<GenericResponse>
+
+    // --- COMENTARIOS ---
+
+    @GET("comments/post/{postId}")
+    suspend fun getComments(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: Int
+    ): Response<CommentListResponse>
+
+    @POST("comments")
+    suspend fun createComment(
+        @Header("Authorization") token: String,
+        @Body request: CreateCommentRequest
     ): Response<GenericResponse>
 }
