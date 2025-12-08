@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mainaplicationpsm.model.Forum
 import com.example.mainaplicationpsm.R
 
-// 1. Añade "onItemClicked" al constructor
 class ForumAdapter(
     private val forumList: List<Forum>,
     private val onItemClicked: (Forum) -> Unit
@@ -21,9 +20,11 @@ class ForumAdapter(
 
     override fun onBindViewHolder(holder: ForumViewHolder, position: Int) {
         val forum = forumList[position]
+
+        // Delegamos el trabajo sucio al ViewHolder
         holder.render(forum)
 
-        // 2. Añade el listener de clic al ítem
+        // Configurar el clic
         holder.itemView.setOnClickListener { onItemClicked(forum) }
     }
 }

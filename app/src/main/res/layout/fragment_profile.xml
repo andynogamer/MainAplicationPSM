@@ -1,92 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.RegisterActivity"
     android:background="@color/purple_all_4">
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/button_rounded_login"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <EditText
-        android:id="@+id/editTextText3"
-        android:layout_width="340dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@color/white"
-        android:ems="10"
-        android:hint="@string/nombres"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="24dp">
 
-    <EditText
-        android:id="@+id/editTextText4"
-        android:layout_width="340dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@color/white"
-        android:ems="10"
-        android:hint="@string/apellidos"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText3" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp">
 
-    <EditText
-        android:id="@+id/editTextText5"
-        android:layout_width="340dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@color/white"
-        android:ems="10"
-        android:hint="@string/alias"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText4" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    app:cardCornerRadius="70dp"
+                    app:cardElevation="8dp">
 
-    <EditText
-        android:id="@+id/editTextText6"
-        android:layout_width="340dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@color/white"
-        android:ems="10"
-        android:hint="@string/correo"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText5" />
+                    <ImageView
+                        android:id="@+id/ivProfileAvatar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_launcher_background"
+                        tools:srcCompat="@tools:sample/avatars" />
+                </androidx.cardview.widget.CardView>
 
-    <EditText
-        android:id="@+id/editTextText7"
-        android:layout_width="340dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@color/white"
-        android:ems="10"
-        android:hint="@string/contrasena"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText6" />
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/button_rounded_login"
+                    android:padding="8dp"
+                    app:srcCompat="@android:drawable/ic_menu_camera"
+                    app:tint="@color/black" />
+            </FrameLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Información Personal"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <EditText
+                android:id="@+id/etProfileName"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/white"
+                android:hint="Nombre"
+                android:inputType="textPersonName"
+                android:paddingHorizontal="16dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <EditText
+                    android:id="@+id/etProfileLastNameFather"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/white"
+                    android:hint="Ap. Paterno"
+                    android:inputType="textPersonName"
+                    android:paddingHorizontal="16dp" />
+
+                <EditText
+                    android:id="@+id/etProfileLastNameMother"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:hint="Ap. Materno"
+                    android:inputType="textPersonName"
+                    android:paddingHorizontal="16dp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/etProfileAlias"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/white"
+                android:hint="Alias (Username)"
+                android:inputType="text"
+                android:paddingHorizontal="16dp" />
+
+            <EditText
+                android:id="@+id/etProfilePhone"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/white"
+                android:hint="Teléfono"
+                android:inputType="phone"
+                android:maxLength="10"
+                android:paddingHorizontal="16dp" />
+
+            <EditText
+                android:id="@+id/etProfileEmail"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="32dp"
+                android:background="#D3D3D3"
+                android:hint="Correo Electrónico"
+                android:inputType="textEmailAddress"
+                android:enabled="false"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/black"/>
+
+            <Button
+                android:id="@+id/btnSaveChanges"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/button_rounded_register"
+                android:text="Guardar Cambios"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:backgroundTint="#FF0000"
+                android:text="Cerrar Sesión"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

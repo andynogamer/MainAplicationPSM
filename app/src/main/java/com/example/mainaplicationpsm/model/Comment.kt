@@ -1,17 +1,23 @@
 package com.example.mainaplicationpsm.model
 
-import java.util.Date
+import com.google.gson.annotations.SerializedName
 
 data class Comment(
+    @SerializedName("Id_comentario")
     val id: Int,
-    val parentCommentId: Int?,
-    val childrenComments : Int?,
+
+    @SerializedName("Id_publicaciones")
+    val postId: Int,
+
+    @SerializedName("Comentario")
     val content: String,
-    val createdAt: Date,
-    val likes: Int?
+
+    @SerializedName("Fecha")
+    val date: String,
+
+    @SerializedName("Hora")
+    val time: String,
+
+    @SerializedName("Alias")
+    val authorAlias: String
 )
-
-
-
-
-

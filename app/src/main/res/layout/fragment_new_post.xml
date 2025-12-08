@@ -5,34 +5,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/purple_all_4"
+    android:padding="16dp"
     tools:context=".view.NewPostFragment">
 
     <TextView
-        android:id="@+id/tvNewPostTitle"
+        android:id="@+id/tvHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Crear nueva publicación"
+        android:layout_marginTop="8dp"
+        android:text="Nueva Publicación"
         android:textColor="@color/white"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/ivPostImagePreview"
+    <EditText
+        android:id="@+id/etPostTitle"
         android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginHorizontal="24dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:background="@drawable/search_bar_backgorun"
-        android:scaleType="centerCrop"
-        android:src="@drawable/baseline_add_24"
+        android:background="@drawable/edit_text_rounded_purple"
+        android:hint="Título interesante..."
+        android:inputType="textCapSentences"
+        android:minHeight="48dp"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/white"
+        android:textColorHint="@android:color/darker_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvNewPostTitle"
-        app:tint="@android:color/darker_gray" />
+        app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
 
     <EditText
         android:id="@+id/etPostDescription"
@@ -40,30 +42,59 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@null"
-        android:ems="10"
-        android:gravity="top"
-        android:hint="¿Qué estás pensando?"
+        android:background="@drawable/search_bar_backgorun"
+        android:gravity="top|start"
+        android:hint="¿Qué quieres compartir con la comunidad?"
         android:inputType="textMultiLine"
-        android:padding="8dp"
+        android:padding="16dp"
         android:textColor="@color/white"
         android:textColorHint="@android:color/darker_gray"
+        app:layout_constraintBottom_toTopOf="@+id/cardImagePreview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etPostTitle" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardImagePreview"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="#3A1F3D"
+        app:cardCornerRadius="12dp"
         app:layout_constraintBottom_toTopOf="@+id/btnPublishPost"
-        app:layout_constraintEnd_toEndOf="@+id/ivPostImagePreview"
-        app:layout_constraintStart_toStartOf="@+id/ivPostImagePreview"
-        app:layout_constraintTop_toBottomOf="@+id/ivPostImagePreview" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/ivPostImagePreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/baseline_add_24"
+            app:tint="@android:color/darker_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:text="Agregar imagen (Opcional)"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"/>
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/btnPublishPost"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/button_rounded_register"
         android:text="Publicar"
         android:textColor="@color/white"
         android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/etPostDescription"
-        app:layout_constraintStart_toStartOf="@+id/etPostDescription" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
