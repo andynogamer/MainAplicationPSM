@@ -96,8 +96,7 @@ class FavoritesFragment : Fragment() {
                             }
 
                             PostAdapter.ActionType.TOGGLE_FAVORITE -> {
-                                // LÓGICA ESPECIAL PARA ESTA PANTALLA:
-                                // Si estás en "Favoritos" y quitas el marcador, el post debe irse.
+
                                 removeFavorite(post, token)
                             }
                         }
@@ -156,8 +155,7 @@ class FavoritesFragment : Fragment() {
     }
 
     private fun showEditDialog(post: Post, token: String) {
-        // ... (Puedes copiar la lógica de MainFragment si quieres permitir editar desde aquí también)
-        // Por brevedad, si no es crítico, puedes omitirlo o copiar el showEditDialog de MainFragment
+
         Toast.makeText(context, "Edita desde el inicio", Toast.LENGTH_SHORT).show()
     }
 

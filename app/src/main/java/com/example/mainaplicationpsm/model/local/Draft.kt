@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "drafts_table")
 data class Draft(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val title: String,
     val description: String,
     val forumId: Int,

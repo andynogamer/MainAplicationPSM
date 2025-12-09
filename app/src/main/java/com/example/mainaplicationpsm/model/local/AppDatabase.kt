@@ -5,7 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Draft::class], version = 1)
+// 1. CAMBIAR VERSION A 2
+@Database(entities = [Draft::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun draftDao(): DraftDao
 
@@ -19,7 +20,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "psm_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // 2. AGREGAR ESTO (Evita crasheos al actualizar)
+                    .build()
                 INSTANCE = instance
                 instance
             }

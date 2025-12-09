@@ -21,7 +21,7 @@ interface ApiService {
     suspend fun register(@Body request: RegisterRequest): Response<LoginResponse>
 
     // --- PUBLICACIONES ---
-    // GET /api/posts?page=1&limit=10
+
     @GET("posts")
     suspend fun getPosts(
         @Header("Authorization") token: String,
@@ -31,13 +31,12 @@ interface ApiService {
 
 
 
-    // POST /api/posts (Requiere Token)
+
     @POST("posts")
     suspend fun createPost(
-        @Header("Authorization") token: String, // Enviaremos el token aquí manualmente por ahora
+        @Header("Authorization") token: String,
         @Body request: CreatePostRequest
-    ): Response<GenericResponse> // Asegúrate de tener GenericResponse en Responses.kt, o usa PostListResponse si devuelve el post
-
+    ): Response<GenericResponse>
     @PUT("posts/{id}")
     suspend fun updatePost(
         @Header("Authorization") token: String,
@@ -60,15 +59,15 @@ interface ApiService {
         @Body body: Map<String, Int> // { "id_foro": 1 }
     ): Response<GenericResponse>
 
-    // Búsqueda de foros
+
     @GET("forums/search")
     suspend fun searchForums(
         @Header("Authorization") token: String,
-        @Query("q") query: String?,      // Texto a buscar (opcional)
-        @Query("order") order: String?   // "newest" o "oldest"
+        @Query("q") query: String?,
+        @Query("order") order: String?
     ): Response<ForumListResponse>
 
-    // Crear un nuevo foro
+
     @POST("forums")
     suspend fun createForum(
         @Header("Authorization") token: String,
@@ -88,7 +87,7 @@ interface ApiService {
 
     // --- USUARIOS ---
 
-    // Obtener detalles del usuario (Para llenar los campos al entrar al perfil)
+
     @GET("users/{id}")
     suspend fun getUserById(
         @Header("Authorization") token: String, // <--- AGREGA ESTO

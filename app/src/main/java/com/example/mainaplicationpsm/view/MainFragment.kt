@@ -45,7 +45,6 @@ class MainFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
         val currentUserId = sessionManager.fetchUserId()
 
-        // 1. Configurar Botón Favoritos
         val btnFavorites = view.findViewById<View>(R.id.btnGoToFavorites)
         btnFavorites.setOnClickListener {
             val fragment = FavoritesFragment.newInstance()
@@ -55,13 +54,11 @@ class MainFragment : Fragment() {
                 .commit()
         }
 
-        // 2. Configurar RecyclerView y LayoutManager
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerPost)
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.layoutManager = layoutManager
 
-        // 3. Inicializar Adaptador (VACÍO al principio)
-        // Definimos toda la lógica de los clics aquí una sola vez
+
         adapter = PostAdapter(mutableListOf(), currentUserId) { post, action ->
             when (action) {
                 PostAdapter.ActionType.DELETE -> confirmDeletePost(post)
@@ -88,8 +85,7 @@ class MainFragment : Fragment() {
                     if (post.isLiked) post.voteCount-- else post.voteCount++
                     post.isLiked = !post.isLiked
 
-                    // Notificar cambio visual (usamos indexOf del adaptador si es posible o de la lista)
-                    // Nota: Si PostAdapter no expone la lista, usa notifyDataSetChanged o un método helper
+
                     adapter.notifyDataSetChanged()
 
                     togglePostLikeApi(post)
@@ -98,7 +94,7 @@ class MainFragment : Fragment() {
         }
         recyclerView?.adapter = adapter
 
-        // 4. Configurar Scroll Listener (Para Paginación Infinita)
+
         recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -107,42 +103,41 @@ class MainFragment : Fragment() {
                 val totalItemCount = layoutManager.itemCount
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                // Si NO está cargando, NO es la última página y llegamos al final...
                 if (!isLoading && !isLastPage) {
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                         && firstVisibleItemPosition >= 0
                         && totalItemCount >= PAGE_SIZE
                     ) {
-                        loadPosts() // ¡Cargar siguiente página!
+                        loadPosts()
                     }
                 }
             }
         })
 
-        // 5. Carga Inicial (Página 1)
+
         loadPosts()
     }
 
     private fun loadPosts() {
         val token = sessionManager.fetchAuthToken() ?: return
-        isLoading = true // Bloqueamos nuevas cargas
+        isLoading = true
 
         lifecycleScope.launch {
             try {
-                // Pedimos datos a la API con la página actual
+
                 val response = RetrofitClient.apiService.getPosts("Bearer $token", currentPage, PAGE_SIZE)
 
                 if (response.isSuccessful) {
                     val newPosts = response.body()?.posts ?: emptyList()
 
                     if (newPosts.isNotEmpty()) {
-                        // Agregamos los posts al adaptador existente
+
                         adapter.addPosts(newPosts)
 
-                        // Avanzamos a la siguiente página
+
                         currentPage++
                     } else {
-                        // Si no hay posts, es que se acabaron
+
                         isLastPage = true
                     }
                 } else {
@@ -151,12 +146,12 @@ class MainFragment : Fragment() {
             } catch (e: Exception) {
                 Log.e("API", "Error conexión: ${e.message}")
             } finally {
-                isLoading = false // Liberamos el bloqueo
+                isLoading = false
             }
         }
     }
 
-    // --- ACCIONES API (Helpers) ---
+
 
     private fun toggleFavoriteApi(post: Post) {
         val token = sessionManager.fetchAuthToken() ?: return

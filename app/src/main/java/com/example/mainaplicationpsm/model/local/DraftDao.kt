@@ -11,8 +11,9 @@ interface DraftDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDraft(draft: Draft)
 
-    @Query("SELECT * FROM drafts_table ORDER BY timestamp DESC")
-    suspend fun getAllDrafts(): List<Draft>
+
+    @Query("SELECT * FROM drafts_table WHERE userId = :userId ORDER BY timestamp DESC")
+    suspend fun getAllDrafts(userId: Int): List<Draft>
 
     @Delete
     suspend fun deleteDraft(draft: Draft)

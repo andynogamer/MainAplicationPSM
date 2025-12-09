@@ -9,7 +9,7 @@ import com.example.mainaplicationpsm.R
 import com.example.mainaplicationpsm.model.Post
 
 class PostAdapter(
-    private var postList: MutableList<Post>, // Debe ser MutableList para poder editarla
+    private var postList: MutableList<Post>,
     private val currentUserId: Int,
     private val onAction: (Post, ActionType) -> Unit
 ) : RecyclerView.Adapter<PostViewHolder>() {
@@ -27,19 +27,14 @@ class PostAdapter(
         val item = postList[position]
         holder.render(item)
 
-        // --- LISTENERS ---
 
-        // Clic en el globo de comentarios o en el contador
         holder.ivComment.setOnClickListener { onAction(item, ActionType.OPEN_COMMENTS) }
         holder.tvCommentCount.setOnClickListener { onAction(item, ActionType.OPEN_COMMENTS) }
 
-        // Clic en el corazón (Like)
         holder.ivLike.setOnClickListener { onAction(item, ActionType.TOGGLE_LIKE) }
 
-        // Clic en favoritos
         holder.ivFavorite.setOnClickListener { onAction(item, ActionType.TOGGLE_FAVORITE) }
 
-        // --- MENÚ DE OPCIONES (Solo si eres el dueño) ---
         val btnOptions = holder.itemView.findViewById<View>(R.id.ivOptions)
         if (item.userId == currentUserId) {
             btnOptions.visibility = View.VISIBLE
@@ -66,27 +61,23 @@ class PostAdapter(
         popup.show()
     }
 
-    // --- FUNCIONES AUXILIARES (Estas son las que te faltaban) ---
 
-    // 1. Obtener índice (Soluciona el error en rojo)
     fun getPostIndex(post: Post): Int {
         return postList.indexOfFirst { it.id == post.id }
     }
 
-    // 2. Añadir posts al final (Para el scroll infinito)
+
     fun addPosts(newPosts: List<Post>) {
         val startPosition = postList.size
         postList.addAll(newPosts)
         notifyItemRangeInserted(startPosition, newPosts.size)
     }
 
-    // 3. Limpiar lista (Para refrescar o recargar)
     fun clear() {
         postList.clear()
         notifyDataSetChanged()
     }
 
-    // 4. Eliminar un post específico visualmente
     fun removePost(post: Post) {
         val index = getPostIndex(post)
         if (index != -1) {

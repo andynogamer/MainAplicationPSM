@@ -53,7 +53,7 @@ class ForumSearch : Fragment() {
                     val forums = response.body()?.forums ?: emptyList()
 
                     if (forums.isEmpty()) {
-                        Toast.makeText(context, "Aún no te has unido a ningún foro", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Aún no hay ningun foro", Toast.LENGTH_SHORT).show()
                     }
 
                     // Configuramos el adaptador
@@ -61,7 +61,7 @@ class ForumSearch : Fragment() {
                         // --- ACCIÓN AL HACER CLIC ---
                         // Abrimos el detalle del foro seleccionado
                         val fragment = ForumDetailFragment.newInstance(
-                            forum.id, // <--- AÑADIR ID AQUÍ AL PRINCIPIO
+                            forum.id,
                             forum.name,
                             forum.description,
                             forum.bannerImageUrl,

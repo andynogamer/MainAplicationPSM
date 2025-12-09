@@ -13,7 +13,7 @@ import com.example.mainaplicationpsm.model.Comment
 
 class CommentAdapter(
     private var commentList: List<Comment>,
-    // Callback actualizado para manejar Reply y Like
+
     private val onAction: (Comment, ActionType) -> Unit
 ) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
 
@@ -48,7 +48,7 @@ class CommentAdapter(
         holder.tvDate.text = "${comment.date} ${comment.time}"
         holder.tvLikes.text = comment.likeCount.toString()
 
-        // --- LÓGICA DE INDENTACIÓN (Mantenla como estaba) ---
+
         val params = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
         params.marginStart = if (comment.parentId != null && comment.parentId != 0) 120 else 0
         holder.itemView.layoutParams = params

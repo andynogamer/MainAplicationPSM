@@ -229,7 +229,7 @@ class ForumDetailFragment : Fragment() {
         }
     }
 
-    // --- LÓGICA PARA EDITAR (Diálogo simple) ---
+
     private fun showEditDialog(post: Post, token: String) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_post, null)
         val etTitle = dialogView.findViewById<EditText>(R.id.etEditTitle)

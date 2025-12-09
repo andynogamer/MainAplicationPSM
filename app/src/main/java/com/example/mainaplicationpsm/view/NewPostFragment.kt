@@ -141,28 +141,34 @@ class NewPostFragment : Fragment() {
         val title = etTitle.text.toString().trim()
         val desc = etDescription.text.toString().trim()
 
+        // Obtenemos el ID del usuario actual
+        val currentUserId = sessionManager.fetchUserId()
+
         if (title.isEmpty() && desc.isEmpty()) {
             Toast.makeText(context, "El borrador no puede estar vacío", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Validación de seguridad (por si se perdió la sesión)
+        if (currentUserId == -1) {
+            Toast.makeText(context, "Error de sesión", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         lifecycleScope.launch {
-            // Creamos el objeto Draft
-            // Si isDraftMode es true, usamos currentDraftId para SOBREESCRIBIR el existente.
-            // Si es false, usamos 0 para que Room genere un ID nuevo.
             val draft = Draft(
                 id = if (isDraftMode) currentDraftId else 0,
                 title = title,
                 description = desc,
                 forumId = forumId,
-                imageBase64 = postImageBase64
+                imageBase64 = postImageBase64,
+                userId = currentUserId // <--- NUEVO: Pasamos el ID al guardar
             )
 
-            // Insertamos (Replace strategy maneja la actualización si el ID ya existe)
             AppDatabase.getDatabase(requireContext()).draftDao().insertDraft(draft)
 
             Toast.makeText(context, "Borrador guardado localmente", Toast.LENGTH_SHORT).show()
-            parentFragmentManager.popBackStack() // Salir de la pantalla
+            parentFragmentManager.popBackStack()
         }
     }
 

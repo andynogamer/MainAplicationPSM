@@ -20,16 +20,16 @@ class PostViewHolder(view: View): RecyclerView.ViewHolder(view) {
     val imageContainer: CardView = view.findViewById(R.id.cvImageContainer)
     val foto: ImageView = view.findViewById(R.id.imgPost)
 
-    // Botones de interacción
+
     val ivComment: ImageView = view.findViewById(R.id.ivComment)
     val tvCommentCount: TextView = view.findViewById(R.id.tvCommentCount)
 
-    // --- CORRECCIÓN: Agregamos ivFavorite ---
+
     val ivFavorite: ImageView = view.findViewById(R.id.ivFavorite)
 
-    val ivLike: ImageView = view.findViewById(R.id.ivLike)           // <--- Faltaba esta
+    val ivLike: ImageView = view.findViewById(R.id.ivLike)
     val tvLikeCount: TextView = view.findViewById(R.id.tvLikeCount)
-    // ----------------------------------------
+
 
     fun render(post: Post){
         user.text = post.userName ?: "Anónimo"
@@ -45,20 +45,18 @@ class PostViewHolder(view: View): RecyclerView.ViewHolder(view) {
         descripcion.text = post.contentText
         tvCommentCount.text = post.commentCount.toString()
 
-        // Lógica de Favorito (Visual)
         if (post.isFavorite) {
-            ivFavorite.setImageResource(R.drawable.ic_bookmark) // Asegúrate de tener este icono
+            ivFavorite.setImageResource(R.drawable.ic_bookmark)
         } else {
-            ivFavorite.setImageResource(R.drawable.ic_bookmark_border) // Asegúrate de tener este icono
+            ivFavorite.setImageResource(R.drawable.ic_bookmark_border)
         }
 
         if (post.isLiked) {
             ivLike.setImageResource(R.drawable.ic_heart_filled)
-            // Usamos itemView.context para obtener el color
             ivLike.setColorFilter(itemView.context.getColor(R.color.secondary_purple_all_4))
         } else {
             ivLike.setImageResource(R.drawable.ic_heart_outline)
-            // Usamos itemView.context para obtener el color blanco/gris
+
             ivLike.setColorFilter(itemView.context.getColor(android.R.color.white))
         }
 

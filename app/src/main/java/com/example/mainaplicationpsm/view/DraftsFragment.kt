@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -16,51 +14,61 @@ import com.example.mainaplicationpsm.R
 import com.example.mainaplicationpsm.adapter.DraftAdapter
 import com.example.mainaplicationpsm.model.local.AppDatabase
 import com.example.mainaplicationpsm.model.local.Draft
+import com.example.mainaplicationpsm.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class DraftsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DraftAdapter
-    private lateinit var tvEmpty: TextView
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Reutilizamos el layout de Favorites porque es idéntico (Lista + Header)
-        // O creamos uno nuevo si prefieres (ver análisis abajo)
-        return inflater.inflate(R.layout.fragment_favorites, container, false)
+        // CORRECCIÓN: Usamos el layout específico de borradores
+        return inflater.inflate(R.layout.fragment_drafts, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Ajustar el título del header (ya que reciclamos el layout de favoritos)
-        val tvTitle = view.findViewById<TextView>(R.id.textViewHeader) // Asegúrate que el ID sea correcto en fragment_favorites o usa uno nuevo
-        // Si usas fragment_favorites.xml, el TextView seguro no tiene ID o es estático.
-        // RECOMENDACIÓN: Usa un layout nuevo 'fragment_drafts.xml' (ver abajo).
+        // 1. Inicializar SessionManager
+        sessionManager = SessionManager(requireContext())
 
+        // 2. Configurar botón atrás
         view.findViewById<View>(R.id.btnBack).setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        recyclerView = view.findViewById(R.id.recyclerFavorites) // Reutilizando ID
+        // 3. Configurar RecyclerView
+        // Asegúrate de que en fragment_drafts.xml el ID sea recyclerDrafts
+        recyclerView = view.findViewById(R.id.recyclerDrafts)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Cargar borradores
+        // 4. Cargar datos
         loadDrafts()
     }
 
-    // Usamos onResume para recargar la lista si volvemos de publicar el post
+    // Usamos onResume para recargar la lista si volvemos de editar/publicar
     override fun onResume() {
         super.onResume()
         loadDrafts()
     }
 
     private fun loadDrafts() {
+        // Obtener el ID del usuario actual
+        val currentUserId = sessionManager.fetchUserId()
+
+        // Seguridad: Si no hay usuario logueado, no cargamos nada
+        if (currentUserId == -1) return
+
         lifecycleScope.launch {
-            val drafts = AppDatabase.getDatabase(requireContext()).draftDao().getAllDrafts()
+            // CORRECCIÓN: Pasamos el currentUserId al DAO para filtrar
+            val drafts = AppDatabase.getDatabase(requireContext())
+                .draftDao()
+                .getAllDrafts(currentUserId)
 
             if (drafts.isEmpty()) {
                 Toast.makeText(context, "No tienes borradores", Toast.LENGTH_SHORT).show()
