@@ -23,7 +23,14 @@ import kotlinx.coroutines.launch
 class MainFragment : Fragment() {
 
     private lateinit var adapter: PostAdapter
+    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var sessionManager: SessionManager
+
+    // Variables de Paginación
+    private var currentPage = 1
+    private var isLoading = false
+    private var isLastPage = false
+    private val PAGE_SIZE = 10
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,155 +43,157 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sessionManager = SessionManager(requireContext())
+        val currentUserId = sessionManager.fetchUserId()
 
+        // 1. Configurar Botón Favoritos
         val btnFavorites = view.findViewById<View>(R.id.btnGoToFavorites)
         btnFavorites.setOnClickListener {
-            // Navegar al fragmento de favoritos
             val fragment = FavoritesFragment.newInstance()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container_view, fragment)
-                .addToBackStack(null) // Para poder volver con el botón "Atrás"
+                .addToBackStack(null)
                 .commit()
         }
 
+        // 2. Configurar RecyclerView y LayoutManager
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerPost)
-        recyclerView?.layoutManager = LinearLayoutManager(requireContext())
+        layoutManager = LinearLayoutManager(requireContext())
+        recyclerView?.layoutManager = layoutManager
 
-        fetchPosts(recyclerView)
+        // 3. Inicializar Adaptador (VACÍO al principio)
+        // Definimos toda la lógica de los clics aquí una sola vez
+        adapter = PostAdapter(mutableListOf(), currentUserId) { post, action ->
+            when (action) {
+                PostAdapter.ActionType.DELETE -> confirmDeletePost(post)
+                PostAdapter.ActionType.EDIT -> showEditDialog(post)
+
+                PostAdapter.ActionType.OPEN_COMMENTS -> {
+                    val fragment = PostDetailFragment.newInstance(
+                        post.id, post.title, post.contentText, post.postImage
+                    )
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container_view, fragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+
+                PostAdapter.ActionType.TOGGLE_FAVORITE -> {
+                    post.isFavorite = !post.isFavorite
+                    val index = adapter.getPostIndex(post) // Si tienes este método helper, o usa indexOf
+                    if (index != -1) adapter.notifyItemChanged(index)
+                    toggleFavoriteApi(post)
+                }
+
+                PostAdapter.ActionType.TOGGLE_LIKE -> {
+                    if (post.isLiked) post.voteCount-- else post.voteCount++
+                    post.isLiked = !post.isLiked
+
+                    // Notificar cambio visual (usamos indexOf del adaptador si es posible o de la lista)
+                    // Nota: Si PostAdapter no expone la lista, usa notifyDataSetChanged o un método helper
+                    adapter.notifyDataSetChanged()
+
+                    togglePostLikeApi(post)
+                }
+            }
+        }
+        recyclerView?.adapter = adapter
+
+        // 4. Configurar Scroll Listener (Para Paginación Infinita)
+        recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                // Si NO está cargando, NO es la última página y llegamos al final...
+                if (!isLoading && !isLastPage) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                        && firstVisibleItemPosition >= 0
+                        && totalItemCount >= PAGE_SIZE
+                    ) {
+                        loadPosts() // ¡Cargar siguiente página!
+                    }
+                }
+            }
+        })
+
+        // 5. Carga Inicial (Página 1)
+        loadPosts()
     }
 
-    private fun fetchPosts(recyclerView: RecyclerView?) {
-        val token = sessionManager.fetchAuthToken()
-        val currentUserId = sessionManager.fetchUserId()
-
-        if (token == null) {
-            Log.e("API", "No hay token")
-            return
-        }
+    private fun loadPosts() {
+        val token = sessionManager.fetchAuthToken() ?: return
+        isLoading = true // Bloqueamos nuevas cargas
 
         lifecycleScope.launch {
             try {
-                // 1. Enviamos el token a getPosts
-                val response = RetrofitClient.apiService.getPosts("Bearer $token")
+                // Pedimos datos a la API con la página actual
+                val response = RetrofitClient.apiService.getPosts("Bearer $token", currentPage, PAGE_SIZE)
 
                 if (response.isSuccessful) {
-                    val posts = response.body()?.posts?.toMutableList() ?: mutableListOf()
+                    val newPosts = response.body()?.posts ?: emptyList()
 
-                    // 2. Usamos el nuevo constructor del Adaptador
-                    adapter = PostAdapter(posts, currentUserId) { post, action ->
-                        when (action) {
-                            // Caso 1: Borrar
-                            PostAdapter.ActionType.DELETE -> {
-                            confirmDeletePost(post, token)
-                        }
-                            PostAdapter.ActionType.TOGGLE_LIKE -> {
-                                // 1. Actualización Optimista (Visual instantánea)
-                                if (post.isLiked) {
-                                    post.voteCount--
-                                } else {
-                                    post.voteCount++
-                                }
-                                post.isLiked = !post.isLiked
+                    if (newPosts.isNotEmpty()) {
+                        // Agregamos los posts al adaptador existente
+                        adapter.addPosts(newPosts)
 
-                                // Notificar cambio visual
-                                adapter.notifyItemChanged(posts.indexOf(post))
-
-                                // 2. Llamada a API en segundo plano
-                                togglePostLikeApi(post, token)
-                            }
-
-                            // Caso 2: Editar
-                            PostAdapter.ActionType.EDIT -> {
-                            showEditDialog(post, token)
-                        }
-                            PostAdapter.ActionType.TOGGLE_FAVORITE -> {
-
-                                post.isFavorite = !post.isFavorite
-                                adapter.notifyItemChanged(posts.indexOf(post))
-                                // Llamada a la API en segundo plano
-                                toggleFavoriteApi(post, token)
-                            }
-
-
-                            // Caso 3: Abrir Comentarios (Nuevo)
-                            PostAdapter.ActionType.OPEN_COMMENTS -> {
-                            val fragment = PostDetailFragment.newInstance(
-                                post.id,
-                                post.title,
-                                post.contentText,
-                                post.postImage
-                            )
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.fragment_container_view, fragment)
-                                .addToBackStack(null)
-                                .commit()
-                        }
-                        }
+                        // Avanzamos a la siguiente página
+                        currentPage++
+                    } else {
+                        // Si no hay posts, es que se acabaron
+                        isLastPage = true
                     }
-                    recyclerView?.adapter = adapter
                 } else {
-                    Log.e("API", "Error al obtener posts: ${response.code()}")
+                    Log.e("API", "Error: ${response.code()}")
                 }
             } catch (e: Exception) {
-                Log.e("API", "Error de conexión: ${e.message}")
+                Log.e("API", "Error conexión: ${e.message}")
+            } finally {
+                isLoading = false // Liberamos el bloqueo
             }
         }
     }
 
-    private fun toggleFavoriteApi(post: Post, token: String) {
+    // --- ACCIONES API (Helpers) ---
+
+    private fun toggleFavoriteApi(post: Post) {
+        val token = sessionManager.fetchAuthToken() ?: return
         lifecycleScope.launch {
             try {
                 val body = mapOf("postId" to post.id)
                 RetrofitClient.apiService.toggleFavorite("Bearer $token", body)
-                // Si falla, podrías revertir el cambio visual aquí
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (e: Exception) { e.printStackTrace() }
         }
     }
-    private fun togglePostLikeApi(post: Post, token: String) {
-        // Log antes de enviar
-        Log.d("DEBUG_LIKE", "Intentando dar like al Post ID: ${post.id}")
 
+    private fun togglePostLikeApi(post: Post) {
+        val token = sessionManager.fetchAuthToken() ?: return
         lifecycleScope.launch {
             try {
-                // Hacemos la llamada
-                val response = RetrofitClient.apiService.togglePostLike("Bearer $token", post.id)
-
-                // Log después de recibir respuesta
-                if (response.isSuccessful) {
-                    Log.d("DEBUG_LIKE", " Servidor respondió ÉXITO (Código: ${response.code()})")
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("DEBUG_LIKE", " Servidor respondió ERROR: ${response.code()} - $errorBody")
-                }
-            } catch (e: Exception) {
-                Log.e("DEBUG_LIKE", "Error de conexión (App no llegó al servidor): ${e.message}")
-                e.printStackTrace()
-            }
+                RetrofitClient.apiService.togglePostLike("Bearer $token", post.id)
+            } catch (e: Exception) { e.printStackTrace() }
         }
     }
 
-    // --- LÓGICA DE BORRADO (Igual que en ForumDetail) ---
-    private fun confirmDeletePost(post: Post, token: String) {
+    private fun confirmDeletePost(post: Post) {
         AlertDialog.Builder(requireContext())
             .setTitle("Eliminar publicación")
-            .setMessage("¿Estás seguro? Esta acción no se puede deshacer.")
-            .setPositiveButton("Eliminar") { _, _ ->
-                performDelete(post, token)
-            }
+            .setMessage("¿Estás seguro?")
+            .setPositiveButton("Eliminar") { _, _ -> performDelete(post) }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun performDelete(post: Post, token: String) {
+    private fun performDelete(post: Post) {
+        val token = sessionManager.fetchAuthToken() ?: return
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.apiService.deletePost("Bearer $token", post.id)
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "Publicación eliminada", Toast.LENGTH_SHORT).show()
-                    val recyclerView = view?.findViewById<RecyclerView>(R.id.recyclerPost)
-                    (recyclerView?.adapter as? PostAdapter)?.removePost(post)
+                    Toast.makeText(context, "Eliminado", Toast.LENGTH_SHORT).show()
+                    adapter.removePost(post)
                 } else {
                     Toast.makeText(context, "Error al eliminar", Toast.LENGTH_SHORT).show()
                 }
@@ -194,8 +203,8 @@ class MainFragment : Fragment() {
         }
     }
 
-    // --- LÓGICA DE EDICIÓN (Igual que en ForumDetail) ---
-    private fun showEditDialog(post: Post, token: String) {
+    private fun showEditDialog(post: Post) {
+        val token = sessionManager.fetchAuthToken() ?: return
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_post, null)
         val etTitle = dialogView.findViewById<EditText>(R.id.etEditTitle)
         val etDesc = dialogView.findViewById<EditText>(R.id.etEditDesc)
@@ -204,7 +213,7 @@ class MainFragment : Fragment() {
         etDesc.setText(post.contentText)
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Editar Publicación")
+            .setTitle("Editar")
             .setView(dialogView)
             .setPositiveButton("Guardar") { _, _ ->
                 val newTitle = etTitle.text.toString()
@@ -215,18 +224,18 @@ class MainFragment : Fragment() {
             .show()
     }
 
-    private fun performEdit(post: Post, newTitle: String, newDesc: String, token: String) {
-        val request = UpdatePostRequest(newTitle, newDesc)
-
+    private fun performEdit(post: Post, title: String, desc: String, token: String) {
+        val request = UpdatePostRequest(title, desc)
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.apiService.updatePost("Bearer $token", post.id, request)
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "Publicación actualizada", Toast.LENGTH_SHORT).show()
-                    val recyclerView = view?.findViewById<RecyclerView>(R.id.recyclerPost)
-                    fetchPosts(recyclerView) // Recargamos la lista
-                } else {
-                    Toast.makeText(context, "Error al actualizar", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Actualizado", Toast.LENGTH_SHORT).show()
+
+                    adapter.clear()
+                    currentPage = 1
+                    isLastPage = false
+                    loadPosts()
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()

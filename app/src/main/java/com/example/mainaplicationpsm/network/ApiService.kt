@@ -24,8 +24,8 @@ interface ApiService {
     // GET /api/posts?page=1&limit=10
     @GET("posts")
     suspend fun getPosts(
-        @Header("Authorization") token: String, // <--- AGREGAR ESTO
-        @Query("page") page: Int = 1,
+        @Header("Authorization") token: String,
+        @Query("page") page: Int,   // <--- Importante
         @Query("limit") limit: Int = 10
     ): Response<PostListResponse>
 

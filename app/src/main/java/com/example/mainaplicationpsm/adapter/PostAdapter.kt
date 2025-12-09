@@ -9,12 +9,11 @@ import com.example.mainaplicationpsm.R
 import com.example.mainaplicationpsm.model.Post
 
 class PostAdapter(
-    private var postList: MutableList<Post>,
-    private val currentUserId: Int,  // ID para saber si es TU post
-    private val onAction: (Post, ActionType) -> Unit // Callback único para todo
+    private var postList: MutableList<Post>, // Debe ser MutableList para poder editarla
+    private val currentUserId: Int,
+    private val onAction: (Post, ActionType) -> Unit
 ) : RecyclerView.Adapter<PostViewHolder>() {
 
-    // Definimos las 3 acciones posibles
     enum class ActionType { EDIT, DELETE, OPEN_COMMENTS, TOGGLE_FAVORITE, TOGGLE_LIKE }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -28,18 +27,20 @@ class PostAdapter(
         val item = postList[position]
         holder.render(item)
 
-        // --- 1. LÓGICA DE COMENTARIOS (Clic en el ícono de globo) ---
-        // Al tocar el icono o el contador, abrimos el detalle
+        // --- LISTENERS ---
+
+        // Clic en el globo de comentarios o en el contador
         holder.ivComment.setOnClickListener { onAction(item, ActionType.OPEN_COMMENTS) }
         holder.tvCommentCount.setOnClickListener { onAction(item, ActionType.OPEN_COMMENTS) }
-        holder.ivFavorite.setOnClickListener { onAction(item, ActionType.TOGGLE_FAVORITE) }
+
+        // Clic en el corazón (Like)
         holder.ivLike.setOnClickListener { onAction(item, ActionType.TOGGLE_LIKE) }
 
-        // --- 2. LÓGICA DE EDICIÓN/BORRADO (Clic en opciones) ---
-        // Buscamos el botón de opciones (flecha/tres puntos)
-        val btnOptions = holder.itemView.findViewById<View>(R.id.ivOptions)
+        // Clic en favoritos
+        holder.ivFavorite.setOnClickListener { onAction(item, ActionType.TOGGLE_FAVORITE) }
 
-        // Solo mostramos el botón si el post es tuyo
+        // --- MENÚ DE OPCIONES (Solo si eres el dueño) ---
+        val btnOptions = holder.itemView.findViewById<View>(R.id.ivOptions)
         if (item.userId == currentUserId) {
             btnOptions.visibility = View.VISIBLE
             btnOptions.setOnClickListener { view ->
@@ -65,8 +66,29 @@ class PostAdapter(
         popup.show()
     }
 
+    // --- FUNCIONES AUXILIARES (Estas son las que te faltaban) ---
+
+    // 1. Obtener índice (Soluciona el error en rojo)
+    fun getPostIndex(post: Post): Int {
+        return postList.indexOfFirst { it.id == post.id }
+    }
+
+    // 2. Añadir posts al final (Para el scroll infinito)
+    fun addPosts(newPosts: List<Post>) {
+        val startPosition = postList.size
+        postList.addAll(newPosts)
+        notifyItemRangeInserted(startPosition, newPosts.size)
+    }
+
+    // 3. Limpiar lista (Para refrescar o recargar)
+    fun clear() {
+        postList.clear()
+        notifyDataSetChanged()
+    }
+
+    // 4. Eliminar un post específico visualmente
     fun removePost(post: Post) {
-        val index = postList.indexOfFirst { it.id == post.id }
+        val index = getPostIndex(post)
         if (index != -1) {
             postList.removeAt(index)
             notifyItemRemoved(index)
