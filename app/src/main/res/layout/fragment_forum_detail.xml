@@ -22,7 +22,10 @@
             app:titleEnabled="true"
             app:expandedTitleMarginStart="16dp"
             app:expandedTitleMarginBottom="20dp"
-            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Headline">
+            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Headline"
+            app:collapsedTitleTextColor="@color/white"
+            app:expandedTitleTextColor="@color/white">
+
 
             <ImageView
                 android:id="@+id/ivDetailForumBanner"

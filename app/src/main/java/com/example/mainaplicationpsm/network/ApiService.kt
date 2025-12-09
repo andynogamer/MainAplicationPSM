@@ -60,6 +60,14 @@ interface ApiService {
         @Body body: Map<String, Int> // { "id_foro": 1 }
     ): Response<GenericResponse>
 
+    // Búsqueda de foros
+    @GET("forums/search")
+    suspend fun searchForums(
+        @Header("Authorization") token: String,
+        @Query("q") query: String?,      // Texto a buscar (opcional)
+        @Query("order") order: String?   // "newest" o "oldest"
+    ): Response<ForumListResponse>
+
     // Crear un nuevo foro
     @POST("forums")
     suspend fun createForum(

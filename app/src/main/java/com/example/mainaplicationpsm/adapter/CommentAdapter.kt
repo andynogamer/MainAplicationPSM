@@ -42,7 +42,7 @@ class CommentAdapter(
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         val comment = commentList[position]
 
-        // ... (tu código de textos y avatar sigue igual) ...
+
         holder.tvUser.text = comment.username
         holder.tvContent.text = comment.content
         holder.tvDate.text = "${comment.date} ${comment.time}"

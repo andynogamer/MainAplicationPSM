@@ -98,10 +98,9 @@ class MainFragment : Fragment() {
                             showEditDialog(post, token)
                         }
                             PostAdapter.ActionType.TOGGLE_FAVORITE -> {
-                                // Optimistic update: Cambiamos visualmente primero para que se sienta rápido
-                                post.isFavorite = !post.isFavorite
-                                adapter.notifyItemChanged(posts.indexOf(post)) // Refrescar solo ese item
 
+                                post.isFavorite = !post.isFavorite
+                                adapter.notifyItemChanged(posts.indexOf(post))
                                 // Llamada a la API en segundo plano
                                 toggleFavoriteApi(post, token)
                             }
@@ -154,13 +153,13 @@ class MainFragment : Fragment() {
 
                 // Log después de recibir respuesta
                 if (response.isSuccessful) {
-                    Log.d("DEBUG_LIKE", "✅ Servidor respondió ÉXITO (Código: ${response.code()})")
+                    Log.d("DEBUG_LIKE", " Servidor respondió ÉXITO (Código: ${response.code()})")
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    Log.e("DEBUG_LIKE", "❌ Servidor respondió ERROR: ${response.code()} - $errorBody")
+                    Log.e("DEBUG_LIKE", " Servidor respondió ERROR: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
-                Log.e("DEBUG_LIKE", "❌ Error de conexión (App no llegó al servidor): ${e.message}")
+                Log.e("DEBUG_LIKE", "Error de conexión (App no llegó al servidor): ${e.message}")
                 e.printStackTrace()
             }
         }
