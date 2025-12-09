@@ -17,15 +17,14 @@
             android:src="@android:drawable/ic_menu_revert"
             app:tint="@color/white"
             android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             xmlns:app="http://schemas.android.com/apk/res-auto"/>
 
         <TextView
-            android:id="@+id/textViewHeader"
+            android:id="@+id/tvTitleHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mis Favoritos"
+            android:text="Mis Borradores"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -35,8 +34,7 @@
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerFavorites"
+        android:id="@+id/recyclerDrafts"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 </LinearLayout>

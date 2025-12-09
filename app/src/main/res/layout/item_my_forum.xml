@@ -10,7 +10,7 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="@color/secondary_purple_all_4"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
 
@@ -39,7 +39,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Nombre del Foro"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +55,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Esta es una descripción breve del foro para que el usuario sepa de qué trata..."
-            android:textColor="#666666"
+            android:textColor="#CCCCCC"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/tvItemForumName"

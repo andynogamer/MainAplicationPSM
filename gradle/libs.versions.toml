@@ -14,6 +14,8 @@ retrofit = "2.9.0"
 converterGson = "2.9.0"
 glide = "4.16.0"
 
+roomVersion = "2.6.1"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

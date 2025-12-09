@@ -139,6 +139,20 @@
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/btnMyDrafts"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#555555"
+                android:text="Ver mis Borradores"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:icon="@android:drawable/ic_menu_edit"
+                app:iconTint="@color/white"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"/>
+
+            <Button
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"

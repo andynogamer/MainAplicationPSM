@@ -39,6 +39,9 @@ class ProfileFragment : Fragment() {
     private lateinit var btnSave: Button
     private lateinit var btnLogout: Button
 
+    private lateinit var btnMyDrafts: Button
+
+
     // Variable para guardar el string base64 de la nueva imagen
     private var newAvatarBase64: String? = null
 
@@ -83,6 +86,7 @@ class ProfileFragment : Fragment() {
         etEmail = view.findViewById(R.id.etProfileEmail)
         btnSave = view.findViewById(R.id.btnSaveChanges)
         btnLogout = view.findViewById(R.id.btnLogout)
+        btnMyDrafts = view.findViewById(R.id.btnMyDrafts)
     }
 
     private fun setupListeners() {
@@ -90,6 +94,13 @@ class ProfileFragment : Fragment() {
         ivAvatar.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             pickImageLauncher.launch(intent)
+        }
+
+        btnMyDrafts.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_view, DraftsFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         // Guardar cambios
